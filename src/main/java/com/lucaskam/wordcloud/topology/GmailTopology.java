@@ -30,10 +30,12 @@ public class GmailTopology {
         String databaseUrl = properties.getProperty("databaseUrl");
         String logLevel = properties.getProperty("logLevel");
         String gmailCredentialsFilePath = properties.getProperty("gmailCredentialsFilePath");
-
+        String logFilesLocation = properties.getProperty("logFilesLocation");
+        int minutesInBetweenQueries = Integer.valueOf(properties.getProperty("minutesInBetweenQueries"));
+        
         Configurator.currentConfig()
-                    .writer(new RollingFileWriter("log.txt", 30, new TimestampLabeler()))
-                    .level(Level.TRACE)
+                    .writer(new RollingFileWriter(logFilesLocation, 30, new TimestampLabeler()))
+                    .level(Level.valueOf(logLevel))
                     .activate();
 
         Logger.info("Successfully loaded properties.");
@@ -44,8 +46,9 @@ public class GmailTopology {
         TextMessageDaoProvider textMessageDaoProvider = new TextMessageDaoProvider(databaseUrl);
 
         TopologyBuilder builder = new TopologyBuilder();
+       
         builder.setSpout("gmail-spout", new GmailSpout(gmailServiceProvider,
-                                                       5));
+                                                       minutesInBetweenQueries));
         builder.setBolt("skeleton-text", new TextMessagePopulatorBolt(gmailServiceProvider, myEmailAddress, myPhoneNumber)).shuffleGrouping("gmail-spout");
         builder.setBolt("full-text", new TextMessageSqlSaverBolt(textMessageDaoProvider)).shuffleGrouping("skeleton-text");
         builder.setBolt("marked-text", new TextMessageMarkerBolt(gmailServiceProvider)).shuffleGrouping("full-text");

@@ -70,7 +70,7 @@ public class GmailService implements Serializable {
             new GoogleAuthorizationCodeFlow.Builder(
                 httpTransport, JSON_FACTORY, clientSecrets, GmailScopes.all())
                 .setDataStoreFactory(dataStoreFactory)
-                .setAccessType("online")l
+                .setAccessType("online")
                 .build();
         return new AuthorizationCodeInstalledApp(
             flow, new LocalServerReceiver()).authorize("user");
