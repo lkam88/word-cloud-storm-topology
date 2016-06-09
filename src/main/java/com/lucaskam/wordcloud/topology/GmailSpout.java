@@ -70,7 +70,8 @@ public class GmailSpout extends BaseRichSpout {
             Logger.error(e);
         }
         try {
-            Thread.sleep(minutesInBetweenQueries * 1000 * 60 * 60);
+            Thread.sleep(minutesInBetweenQueries * 1000 * 60);
+            Logger.debug("Got as many emails as we could, now we're gonna sleep for {} minutes", minutesInBetweenQueries);
         } catch (InterruptedException ignored) {
         }
     }

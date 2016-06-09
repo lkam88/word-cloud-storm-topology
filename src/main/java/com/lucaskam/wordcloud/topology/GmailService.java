@@ -18,6 +18,8 @@ import com.google.api.services.gmail.model.ModifyMessageRequest;
 
 import org.pmw.tinylog.Logger;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -60,10 +62,11 @@ public class GmailService implements Serializable {
 
     public Credential authorize(String clientSecretFilePath) throws IOException {
         // Load client secrets.
-        InputStream in =
-            GmailService.class.getResourceAsStream(clientSecretFilePath);
+//        InputStream in =
+//            GmailService.class.getResourceAsStream(clientSecretFilePath);
+        File file = new File(clientSecretFilePath);
         GoogleClientSecrets clientSecrets =
-            GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in));
+            GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(new FileInputStream(file)));
 
         // Build flow and trigger user authorization request.
         GoogleAuthorizationCodeFlow flow =
