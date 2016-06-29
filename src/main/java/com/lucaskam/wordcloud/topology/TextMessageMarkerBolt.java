@@ -39,6 +39,7 @@ public class TextMessageMarkerBolt extends BaseRichBolt {
             textMessage = (TextMessage) input.getValueByField("text-message");
             gmailService.markTextMessage(textMessage);
             outputCollector.emit(new Values(textMessage));
+            Logger.debug("Marked text message as processed: {}", textMessage);
             Thread.sleep(1000);
         } catch (Exception e) {
             Logger.error(e, "Unable to mark text message as processed: {}", input);

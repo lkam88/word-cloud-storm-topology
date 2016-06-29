@@ -47,18 +47,15 @@ public class GmailSpout extends BaseRichSpout {
 
             while (listMessagesResponse.getNextPageToken() != null) {
                 String pageToken = listMessagesResponse.getNextPageToken();
-
                 for (Message message : listMessagesResponse.getMessages()) {
-
                     TextMessage textMessage = new TextMessage(message.getId());
-
                     spoutOutputCollector.emit(new Values(textMessage));
+                    Logger.debug("Found email: {}", textMessage);
                 }
 
                 Thread.sleep(1000);
                 listMessagesResponse = gmailService.getMessages(pageToken);
             }
-
         } catch (GoogleJsonResponseException ignored) {
             try {
                 Logger.debug("We exceeded API rate limits, so we're gonna chill for 10 seconds");
@@ -66,7 +63,7 @@ public class GmailSpout extends BaseRichSpout {
             } catch (InterruptedException e) {
                 Logger.error(e, "Unable to get all emails from Gmail");
             }
-        } catch (IOException | InterruptedException e) {
+        } catch (Exception e) {
             Logger.error(e);
         }
         try {

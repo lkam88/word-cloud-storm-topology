@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TextMessageDao implements Serializable {
-    public static final String INSERT_QUERY = "INSERT INTO `text_message`(`id`,`from`,`to`,`timestamp`,`message_body`)" +
+    public static final String INSERT_QUERY = "INSERT IGNORE INTO `text_message`(`id`,`from`,`to`,`timestamp`,`message_body`)" +
                                               "VALUES(?,?,?,?,?)";
     public static final String SELECT_BY_FROM_QUERY = "SELECT * FROM text_message WHERE `from` = ?";
     public static final String SELECT_BY_TO_QUERY = "SELECT * FROM text_message WHERE `to` = ?";

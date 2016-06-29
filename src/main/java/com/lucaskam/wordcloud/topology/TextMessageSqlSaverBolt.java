@@ -37,11 +37,11 @@ public class TextMessageSqlSaverBolt extends BaseRichBolt {
         TextMessage textMessage = null;
         try {
             textMessage = (TextMessage) input.getValueByField("text-message");
-            Logger.debug(this.getClass().getSimpleName() + ":" + textMessage);
             textMessageDao.save(textMessage);
             outputCollector.emit(new Values(textMessage));
+            Logger.debug("Saved to database: {}", textMessage);
         } catch (Exception e) {
-            Logger.error("Unable to save text message to database: {}", textMessage);
+            Logger.error(e, "Unable to save text message to database: {}", textMessage);
         } finally {
             outputCollector.ack(input);
         }

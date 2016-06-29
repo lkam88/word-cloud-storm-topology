@@ -48,10 +48,11 @@ public class TextMessagePopulatorBolt extends BaseRichBolt {
         try {
             skeletonTextMessage = (TextMessage) input.getValueByField("text-message");
 
-            Message gmailMessage = gmailService.getTextMessage(skeletonTextMessage.getId());
+            Message gmailMessage = gmailService.getMessage(skeletonTextMessage.getId());
 
-            outputCollector.emit(new Values(transformToTextMessage(gmailMessage)));
-
+            TextMessage textMessage = transformToTextMessage(gmailMessage);
+            outputCollector.emit(new Values(textMessage));
+            Logger.debug("Populated text message: {}", textMessage);
             Thread.sleep(1000);
         } catch (Exception e) {
             Logger.error(e, "Unable to populate text message: {}", skeletonTextMessage);
