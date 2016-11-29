@@ -28,15 +28,18 @@ import java.net.SocketTimeoutException;
 import java.util.Arrays;
 
 public class GmailService implements Serializable {
+    private static final String ME = "me";
+    
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
-    private static final int MAX_RETRIES = 5;
 
+    private static final int MAX_RETRIES = 5;
     private final String applicationName;
     private final String gmailSearchQuery;
-    private final String processedLabelId;
 
+    private final String processedLabelId;
     private FileDataStoreFactory dataStoreFactory;
     private HttpTransport httpTransport;
+
     private String gmailCredentialsFilePath;
 
     public GmailService(String applicationName, String gmailSearchQuery, String processedLabelId, String gmailCredentialsFilePath) {
@@ -77,97 +80,46 @@ public class GmailService implements Serializable {
             flow, new LocalServerReceiver()).authorize("user");
     }
 
-    private String user = "me";
-
     // TODO: Make retry logic less horrible somehow.
     public ListMessagesResponse getMessages() throws IOException {
         for (int retries = 0; retries < MAX_RETRIES; retries++) {
             try {
                 Gmail gmail = getGmailService();
-                return gmail.users().messages().list(user).setQ(gmailSearchQuery).execute();
-            } catch (SocketTimeoutException e) {
-                Logger.error(e, "Gmail timed out. retries: {}", retries);
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e1) {
-                    e1.printStackTrace();
-                }
-            } catch (GoogleJsonResponseException e) {
-                int statusCode = e.getStatusCode();
-
-                Logger.error(e, "Gmail returned a {}. retries: {}", statusCode, retries);
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException ignored) {
-                }
-            } catch (Exception e)
-            {
-                Logger.error(e, "Something bad happened while getting a messages");
+                return gmail.users().messages().list(ME).setQ(gmailSearchQuery).execute();
+            } catch (Exception e) {
+                handleException(e, retries);
             }
         }
-
-        throw new RuntimeException("Gmail timed out or something...");
+        
+        throw new RuntimeException("Ran out of retries.");
     }
+
 
     public ListMessagesResponse getMessages(String pageToken) throws IOException {
         for (int retries = 0; retries < MAX_RETRIES; retries++) {
             try {
                 Gmail gmail = getGmailService();
-                return gmail.users().messages().list(user).setQ(gmailSearchQuery).setPageToken(pageToken).execute();
+                return gmail.users().messages().list(ME).setQ(gmailSearchQuery).setPageToken(pageToken).execute();
 
-            } catch (SocketTimeoutException e) {
-                Logger.debug("GMail timed out. retries: {}", retries);
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e1) {
-                    e1.printStackTrace();
-                }
-            } catch (GoogleJsonResponseException e) {
-                int statusCode = e.getStatusCode();
-
-                Logger.error(e, "Gmail returned a {}. retries: {}", statusCode, retries);
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e1) {
-                    e1.printStackTrace();
-                }
-            } catch (Exception e)
-            {
-                Logger.error(e, "Something bad happened while getting a messages");
+            } catch (Exception e) {
+                handleException(e, retries);
             }
         }
 
-        throw new RuntimeException("Gmail timed out or something...");
+        throw new RuntimeException("Ran out of retries.");
     }
 
     public Message getMessage(String gmailId) throws IOException {
         for (int retries = 0; retries < MAX_RETRIES; retries++) {
             try {
                 Gmail gmail = getGmailService();
-                return gmail.users().messages().get(user, gmailId).execute();
-            } catch (SocketTimeoutException e) {
-                Logger.debug("GMail timed out. retries: {}", retries);
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e1) {
-                    e1.printStackTrace();
-                }
-            } catch (GoogleJsonResponseException e) {
-                int statusCode = e.getStatusCode();
-
-                Logger.error(e, "Gmail returned a {}. retries: {}", statusCode, retries);
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e1) {
-                    e1.printStackTrace();
-                }
-            } catch (Exception e)
-            {
-                Logger.error(e, "Something bad happened while getting a Message");
+                return gmail.users().messages().get(ME, gmailId).execute();
+            }  catch (Exception e) {
+                handleException(e, retries);
             }
         }
 
-        throw new RuntimeException("Gmail timed out or something...");
+        throw new RuntimeException("Ran out of retries.");
     }
 
     public void markTextMessage(TextMessage textMessage) throws IOException {
@@ -175,30 +127,28 @@ public class GmailService implements Serializable {
             try {
                 Gmail gmail = getGmailService();
                 ModifyMessageRequest modifyMessageRequest = new ModifyMessageRequest().setAddLabelIds(Arrays.asList(processedLabelId));
-                gmail.users().messages().modify(user, textMessage.getId(), modifyMessageRequest).execute();
+                gmail.users().messages().modify(ME, textMessage.getId(), modifyMessageRequest).execute();
                 return;
-            } catch (SocketTimeoutException e) {
-                Logger.debug("GMail timed out. retries: {}", retries);
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e1) {
-                    e1.printStackTrace();
-                }
-            } catch (GoogleJsonResponseException e) {
-                int statusCode = e.getStatusCode();
-
-                Logger.error(e, "Gmail returned a {}. retries: {}", statusCode, retries);
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e1) {
-                    e1.printStackTrace();
-                }
-            } catch (Exception e)
-            {
-                Logger.error(e, "Something bad happened while marking a message");
+            }  catch (Exception e) {
+                handleException(e, retries);
             }
         }
 
-        throw new RuntimeException("Gmail timed out or something...");
+        throw new RuntimeException("Ran out of retries.");
+    }
+
+    private void handleException(Exception e, int retries) {
+        if (SocketTimeoutException.class.isAssignableFrom(e.getClass())) {
+            Logger.error(e, "Gmail timed out. retries: {}", retries);
+        } else if (GoogleJsonResponseException.class.isAssignableFrom(e.getClass())) {
+            int statusCode = ((GoogleJsonResponseException) e).getStatusCode();
+            Logger.error(e, "Gmail returned a {}. retries: {}", statusCode, retries);
+        } else {
+            Logger.error(e, "Something bad happened while making a request to Gmail.  Retries {}", e);
+        }
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException ignored) {
+        }
     }
 }

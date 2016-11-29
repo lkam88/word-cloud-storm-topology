@@ -36,7 +36,7 @@ public class GetMessageById {
         
         GmailService  gmailService= new GmailService(applicationName, gmailSearchQuery, processedLabelId, gmailCredentialsFilePath);
 
-        Message message = gmailService.getMessage("152c79256ff4b57f");
+        Message message = gmailService.getMessage("1559e96ed77b060d");
 
         System.out.println(message);
 
