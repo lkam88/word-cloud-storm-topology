@@ -1,4 +1,6 @@
-package com.lucaskam.wordcloud.topology;
+package com.lucaskam.wordcloud.topology.daos;
+
+import com.lucaskam.wordcloud.topology.models.TextMessage;
 
 import org.pmw.tinylog.Logger;
 

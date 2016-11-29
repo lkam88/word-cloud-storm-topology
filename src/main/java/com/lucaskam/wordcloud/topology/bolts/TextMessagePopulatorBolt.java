@@ -1,6 +1,10 @@
-package com.lucaskam.wordcloud.topology;
+package com.lucaskam.wordcloud.topology.bolts;
 
 import com.google.api.services.gmail.model.Message;
+
+import com.lucaskam.wordcloud.topology.services.GmailService;
+import com.lucaskam.wordcloud.topology.services.providers.GmailServiceProvider;
+import com.lucaskam.wordcloud.topology.models.TextMessage;
 
 import org.pmw.tinylog.Logger;
 
@@ -22,7 +26,7 @@ public class TextMessagePopulatorBolt extends BaseRichBolt {
     public final String myPhoneNumber;
 
     private OutputCollector outputCollector;
-    private  GmailServiceProvider gmailServiceProvider;
+    private GmailServiceProvider gmailServiceProvider;
     private transient GmailService gmailService;
 
     public TextMessagePopulatorBolt(GmailServiceProvider gmailServiceProvider, String myEmailAddress, String myPhoneNumber) {

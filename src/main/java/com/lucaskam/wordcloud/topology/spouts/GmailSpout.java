@@ -1,12 +1,15 @@
-package com.lucaskam.wordcloud.topology;
+package com.lucaskam.wordcloud.topology.spouts;
 
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.services.gmail.model.ListMessagesResponse;
 import com.google.api.services.gmail.model.Message;
 
+import com.lucaskam.wordcloud.topology.services.GmailService;
+import com.lucaskam.wordcloud.topology.services.providers.GmailServiceProvider;
+import com.lucaskam.wordcloud.topology.models.TextMessage;
+
 import org.pmw.tinylog.Logger;
 
-import java.io.IOException;
 import java.util.Map;
 
 import backtype.storm.spout.SpoutOutputCollector;

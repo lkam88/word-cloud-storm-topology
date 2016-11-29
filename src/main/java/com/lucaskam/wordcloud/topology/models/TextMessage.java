@@ -1,4 +1,4 @@
-package com.lucaskam.wordcloud.topology;
+package com.lucaskam.wordcloud.topology.models;
 
 import java.io.Serializable;
 import java.util.Arrays;

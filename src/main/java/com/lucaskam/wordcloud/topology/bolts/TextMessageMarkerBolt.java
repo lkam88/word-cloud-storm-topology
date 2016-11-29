@@ -1,4 +1,8 @@
-package com.lucaskam.wordcloud.topology;
+package com.lucaskam.wordcloud.topology.bolts;
+
+import com.lucaskam.wordcloud.topology.services.GmailService;
+import com.lucaskam.wordcloud.topology.services.providers.GmailServiceProvider;
+import com.lucaskam.wordcloud.topology.models.TextMessage;
 
 import org.pmw.tinylog.Logger;
 
@@ -12,13 +16,13 @@ import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 
-public class TextMessageSqlSaverBolt extends BaseRichBolt {
+public class TextMessageMarkerBolt extends BaseRichBolt {
     private OutputCollector outputCollector;
-    private TextMessageDaoProvider textMessageDaoProvider;
-    private transient TextMessageDao textMessageDao;
+    private GmailServiceProvider gmailServiceProvider;
+    private transient GmailService gmailService;
 
-    public TextMessageSqlSaverBolt(TextMessageDaoProvider textMessageDaoProvider) {
-        this.textMessageDaoProvider = textMessageDaoProvider;
+    public TextMessageMarkerBolt(GmailServiceProvider gmailServiceProvider) {
+        this.gmailServiceProvider = gmailServiceProvider;
     }
 
     @Override
@@ -29,19 +33,20 @@ public class TextMessageSqlSaverBolt extends BaseRichBolt {
     @Override
     public void prepare(Map stormConf, TopologyContext context, OutputCollector outputCollector) {
         this.outputCollector = outputCollector;
-        this.textMessageDao = textMessageDaoProvider.provide();
+        gmailService = gmailServiceProvider.provide();
     }
 
     @Override
     public void execute(Tuple input) {
-        TextMessage textMessage = null;
+        TextMessage textMessage;
         try {
             textMessage = (TextMessage) input.getValueByField("text-message");
-            textMessageDao.save(textMessage);
+            gmailService.markTextMessage(textMessage);
             outputCollector.emit(new Values(textMessage));
-            Logger.debug("Saved to database: {}", textMessage);
+            Logger.debug("Marked text message as processed: {}", textMessage);
+            Thread.sleep(1000);
         } catch (Exception e) {
-            Logger.error(e, "Unable to save text message to database: {}", textMessage);
+            Logger.error(e, "Unable to mark text message as processed: {}", input);
         } finally {
             outputCollector.ack(input);
         }

@@ -1,4 +1,6 @@
-package com.lucaskam.wordcloud.topology;
+package com.lucaskam.wordcloud.topology.services.providers;
+
+import com.lucaskam.wordcloud.topology.services.GmailService;
 
 import java.io.Serializable;
 

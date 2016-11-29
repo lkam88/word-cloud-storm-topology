@@ -1,13 +1,12 @@
 import com.google.api.services.gmail.model.Message;
 
-import com.lucaskam.wordcloud.topology.GmailService;
-import com.lucaskam.wordcloud.topology.TextMessage;
-import com.lucaskam.wordcloud.topology.TextMessageDao;
+import com.lucaskam.wordcloud.topology.services.GmailService;
+import com.lucaskam.wordcloud.topology.models.TextMessage;
+import com.lucaskam.wordcloud.topology.daos.TextMessageDao;
 
 import org.pmw.tinylog.Logger;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

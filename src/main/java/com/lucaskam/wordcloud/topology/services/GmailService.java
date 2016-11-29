@@ -1,4 +1,4 @@
-package com.lucaskam.wordcloud.topology;
+package com.lucaskam.wordcloud.topology.services;
 
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
@@ -16,6 +16,8 @@ import com.google.api.services.gmail.GmailScopes;
 import com.google.api.services.gmail.model.ListMessagesResponse;
 import com.google.api.services.gmail.model.Message;
 import com.google.api.services.gmail.model.ModifyMessageRequest;
+
+import com.lucaskam.wordcloud.topology.models.TextMessage;
 
 import org.pmw.tinylog.Logger;
 
