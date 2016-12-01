@@ -56,18 +56,11 @@
     </build>
 
     <dependencies>
-        <!--Storm and Kafka -->
-        <dependency>
-            <groupId>org.apache.storm</groupId>
-            <artifactId>storm-kafka</artifactId>
-            <version>0.9.4</version>
-            <scope>compile</scope>
-        </dependency>
 
         <dependency>
             <groupId>org.apache.storm</groupId>
             <artifactId>storm-core</artifactId>
-            <version>0.9.4</version>
+            <version>1.0.2</version>
             <!--scope>provided</scope-->
         </dependency>
 

@@ -8,11 +8,12 @@ import com.lucaskam.wordcloud.topology.models.RuntimeConfigurations;
 import com.lucaskam.wordcloud.topology.services.providers.GmailServiceProvider;
 import com.lucaskam.wordcloud.topology.spouts.GmailSpout;
 
+
+import org.apache.storm.Config;
+import org.apache.storm.LocalCluster;
+import org.apache.storm.topology.TopologyBuilder;
 import org.pmw.tinylog.Logger;
 
-import backtype.storm.Config;
-import backtype.storm.LocalCluster;
-import backtype.storm.topology.TopologyBuilder;
 
 public class TextMessageTopology {
     private final String applicationName;
@@ -49,6 +50,7 @@ public class TextMessageTopology {
                                                        minutesInBetweenQueries));
         builder.setBolt("skeleton-text", new TextMessagePopulatorBolt(gmailServiceProvider, myEmailAddress, myPhoneNumber)).shuffleGrouping("gmail-spout");
         builder.setBolt("full-text", new TextMessageSqlSaverBolt(textMessageDaoProvider)).shuffleGrouping("skeleton-text");
+//        builder.setBolt("full-text", new EsBolt("text-messages", true)).shuffleGrouping("skeleton-text");
         builder.setBolt("marked-text", new TextMessageMarkerBolt(gmailServiceProvider)).shuffleGrouping("full-text");
 
         Logger.info("Starting topology");
